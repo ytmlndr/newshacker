@@ -6,11 +6,15 @@ import com.newshacker.db.redis.AbstractRedisService;
 import com.newshacker.model.impl.Post;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.Transaction;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class PostRedis extends AbstractRedisService {
@@ -56,6 +60,28 @@ public class PostRedis extends AbstractRedisService {
         } catch (IOException e) {
             logger.error("Can't parse string to post", e);
             return false;
+        }
+    }
+
+    public List<Post> readDesc(int size) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Set<String> postsIds = jedis.zrevrange("posts.sort", 0, size);
+            Pipeline pipelined = jedis.pipelined();
+            List<Response<String>> responses = new ArrayList<>();
+            for (String postId : postsIds) {
+                responses.add(pipelined.hget("posts", postId));
+            }
+            pipelined.sync();
+            List<Post> posts = new ArrayList<>();
+            try {
+                for (Response<String> response : responses) {
+                    posts.add(objectMapper.readValue(response.get(), Post.class));
+                }
+            } catch (IOException e) {
+                logger.error("Can't parse value to Post", e);
+            }
+            return posts;
         }
     }
 }

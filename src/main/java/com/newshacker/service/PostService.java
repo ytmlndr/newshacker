@@ -4,13 +4,19 @@ import com.newshacker.db.redis.impl.IdGeneratorRedis;
 import com.newshacker.db.redis.impl.PostRedis;
 import com.newshacker.exception.*;
 import com.newshacker.model.impl.Post;
+import com.newshacker.model.impl.Vote;
+import javafx.geometry.Pos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -19,6 +25,9 @@ public class PostService {
 
     @Autowired
     private PostRedis postRedis;
+
+    @Autowired
+    private VoteService voteService;
 
     @Autowired
     private IdGeneratorRedis idGeneratorRedis;
@@ -78,5 +87,24 @@ public class PostService {
 
     public Optional<Post> read(Long postId) {
         return postRedis.read(postId);
+    }
+
+    public List<Post> read(int size) {
+        // Read posts
+        List<Post> posts = postRedis.readDesc(size);
+
+        // Read votes
+        List<Long> postIds = posts.stream()
+                .mapToLong(Post::getPostId)
+                .boxed()
+                .collect(Collectors.toList());
+        Map<Long, Map<Vote.VoteType, Long>> votes = voteService.readVotes(postIds);
+
+        // Set the votes in posts
+        for (Post post : posts) {
+            post.setVotes(votes.get(post.getPostId()));
+        }
+
+        return posts;
     }
 }

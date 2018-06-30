@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class VoteRedis {
@@ -57,6 +55,33 @@ public class VoteRedis {
                 }
             }
             return false;
+        }
+    }
+
+    public Map<Long, Map<Vote.VoteType, Long>> read(List<Long> postIds) {
+        Map<Long, Map<Vote.VoteType, Response<Long>>> responses = new HashMap<>();
+        try (Jedis jedis = jedisPool.getResource()) {
+            Pipeline pipelined = jedis.pipelined();
+            for (Long postId : postIds) {
+                for (Vote.VoteType voteType : Vote.VoteType.values()) {
+                    String key = String.format(postsUsersVoteKeyFormat, postId, voteType.lowercase());
+                    Response<Long> response = pipelined.scard(key);
+                    responses.putIfAbsent(postId, new HashMap<>());
+                    responses.get(postId).put(voteType, response);
+                }
+            }
+            pipelined.sync();
+            Map<Long, Map<Vote.VoteType, Long>> result = new HashMap<>();
+            for (Long postId : responses.keySet()) {
+                Map<Vote.VoteType, Response<Long>> voteTypeResponseMap = responses.get(postId);
+                for (Map.Entry<Vote.VoteType, Response<Long>> voteTypeResponseEntry : voteTypeResponseMap.entrySet()) {
+                    Vote.VoteType voteType = voteTypeResponseEntry.getKey();
+                    Response<Long> response = voteTypeResponseEntry.getValue();
+                    result.putIfAbsent(postId, new HashMap<>());
+                    result.get(postId).put(voteType, response.get());
+                }
+            }
+            return result;
         }
     }
 }
