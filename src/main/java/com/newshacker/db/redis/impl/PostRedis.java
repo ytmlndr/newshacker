@@ -1,14 +1,11 @@
-package com.newshacker.db.redis;
+package com.newshacker.db.redis.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.newshacker.db.redis.AbstractRedisService;
 import com.newshacker.model.impl.Post;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.Transaction;
 
@@ -16,12 +13,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Service
-public class PostRedis {
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    private JedisPool jedisPool;
+public class PostRedis extends AbstractRedisService {
 
     public boolean add(Post post) {
         try (Jedis jedis = jedisPool.getResource()) {
@@ -45,7 +37,7 @@ public class PostRedis {
     public Optional<Post> read(Long postId) {
         try (Jedis jedis = jedisPool.getResource()) {
             String postJson = jedis.hget("posts", postId.toString());
-            if(postJson == null) {
+            if (postJson == null) {
                 return Optional.empty();
             }
             Post post = new ObjectMapper().readValue(postJson, Post.class);

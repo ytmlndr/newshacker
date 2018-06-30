@@ -1,15 +1,11 @@
-package com.newshacker.db.redis;
+package com.newshacker.db.redis.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.newshacker.db.redis.AbstractRedisService;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 @Component
-public class IdGeneratorRedis {
-
-    @Autowired
-    private JedisPool jedisPool;
+public class IdGeneratorRedis extends AbstractRedisService {
 
     public Long getNextPostId() {
         try (Jedis jedis = jedisPool.getResource()) {
