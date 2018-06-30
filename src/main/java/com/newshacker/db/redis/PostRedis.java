@@ -42,4 +42,28 @@ public class PostRedis {
         }
     }
 
+    public Optional<Post> read(Long postId) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            String postJson = jedis.hget("posts", postId.toString());
+            if(postJson == null) {
+                return Optional.empty();
+            }
+            Post post = new ObjectMapper().readValue(postJson, Post.class);
+            return Optional.ofNullable(post);
+        } catch (IOException e) {
+            logger.error("Can't parse string to post", e);
+            return Optional.empty();
+        }
+    }
+
+    public boolean update(Post post) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            String json = new ObjectMapper().writeValueAsString(post);
+            jedis.hset("posts", post.getPostId().toString(), json);
+            return true;
+        } catch (IOException e) {
+            logger.error("Can't parse string to post", e);
+            return false;
+        }
+    }
 }

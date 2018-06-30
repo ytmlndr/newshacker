@@ -4,12 +4,10 @@ import com.newshacker.model.impl.Post;
 import com.newshacker.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController("/post")
+@RequestMapping("/post")
 public class PostController {
 
     @Autowired
@@ -17,7 +15,13 @@ public class PostController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private Post create(@RequestBody Post post) {
+    public Post create(@RequestBody Post post) {
         return postService.create(post);
+    }
+
+    @PutMapping("/{postId}")
+    public Post update(@PathVariable Long postId,
+                       @RequestBody Post post) {
+        return postService.update(postId, post);
     }
 }
