@@ -6,16 +6,16 @@ import com.newshacker.model.Model;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Post extends Model {
 
-    private String postId;
+    private Long postId;
     private String text;
     private Integer userId;
     private Long createdAt;
 
-    public String getPostId() {
+    public Long getPostId() {
         return postId;
     }
 
-    public void setPostId(String postId) {
+    public void setPostId(Long postId) {
         this.postId = postId;
     }
 
