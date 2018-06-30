@@ -1,15 +1,14 @@
 package com.newshacker.service;
 
+import com.newshacker.db.redis.IdGeneratorRedis;
 import com.newshacker.db.redis.PostRedis;
 import com.newshacker.exception.PostCreateErrorException;
-import com.newshacker.model.impl.Post;
 import com.newshacker.exception.PostCreateRequestNotValidException;
+import com.newshacker.model.impl.Post;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class PostService {
@@ -18,6 +17,9 @@ public class PostService {
 
     @Autowired
     private PostRedis postRedis;
+
+    @Autowired
+    private IdGeneratorRedis idGeneratorRedis;
 
     public Post create(Post post) {
         if (post == null) {
@@ -32,7 +34,7 @@ public class PostService {
             logger.error("Can't create post, UserId is not valid");
             throw new PostCreateRequestNotValidException("User is a must");
         }
-        post.setPostId(UUID.randomUUID().toString());
+        post.setPostId(idGeneratorRedis.getNextPostId());
         post.setCreatedAt(System.currentTimeMillis());
         boolean added = postRedis.add(post);
         if (!added) {
@@ -42,4 +44,5 @@ public class PostService {
         logger.info("Created new post {}", post.getPostId());
         return post;
     }
+
 }
