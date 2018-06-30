@@ -1,7 +1,7 @@
 package com.newshacker.service;
 
-import com.newshacker.db.redis.IdGeneratorRedis;
-import com.newshacker.db.redis.PostRedis;
+import com.newshacker.db.redis.impl.IdGeneratorRedis;
+import com.newshacker.db.redis.impl.PostRedis;
 import com.newshacker.exception.*;
 import com.newshacker.model.impl.Post;
 import org.slf4j.Logger;
@@ -74,5 +74,9 @@ public class PostService {
         }
         logger.info("Update post {}", postId);
         return fullPost;
+    }
+
+    public Optional<Post> read(Long postId) {
+        return postRedis.read(postId);
     }
 }

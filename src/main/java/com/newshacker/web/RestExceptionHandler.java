@@ -42,6 +42,31 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(e, new ErrorResponse(e.getMessage()), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
+    @ExceptionHandler({VoteCreateRequestNotValidException.class})
+    protected ResponseEntity<Object> handleVoteCreateRequestNotValidException(Exception e, WebRequest request) {
+        return handleExceptionInternal(e, new ErrorResponse(e.getMessage()), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler({VoteCreateRequestUserVotedPostException.class})
+    protected ResponseEntity<Object> handleVoteCreateRequestUserVotedPostException(Exception e, WebRequest request) {
+        return handleExceptionInternal(e, new ErrorResponse(e.getMessage()), new HttpHeaders(), HttpStatus.CONFLICT, request);
+    }
+
+    @ExceptionHandler({VoteCreateRequestPostNotExistsException.class})
+    protected ResponseEntity<Object> handleVoteCreateRequestPostNotExistsException(Exception e, WebRequest request) {
+        return handleExceptionInternal(e, new ErrorResponse(e.getMessage()), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler({VoteCreateRequestUserCreatedPostVoteException.class})
+    protected ResponseEntity<Object> handleVoteCreateRequestUserCreatedPostVoteException(Exception e, WebRequest request) {
+        return handleExceptionInternal(e, new ErrorResponse(e.getMessage()), new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler({VoteCreateRequestErrorException.class})
+    protected ResponseEntity<Object> handleVoteCreateRequestErrorException(Exception e, WebRequest request) {
+        return handleExceptionInternal(e, new ErrorResponse(e.getMessage()), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
     private class ErrorResponse {
         private String error;
 
