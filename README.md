@@ -7,8 +7,6 @@ RESTful API for creating posts and upvoting or downvoting a post
 4. A user can receive the front page comprised of a list of “Top Posts”.
 
 #### API
-1. create a new post:<br>
-
 | Method | Resource | Description | Request | Notes
 | :--- | :--- | :--- | :--- | --- |
 | POST | /post | Create a new post | `{"text":"test", "userId":123}`
