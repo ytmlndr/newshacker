@@ -6,7 +6,7 @@
 
     <groupId>newshacker</groupId>
     <artifactId>newshacker</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -38,5 +38,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
+        <finalName>newshacker</finalName>
     </build>
 </project>
